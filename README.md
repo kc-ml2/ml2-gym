@@ -1,14 +1,19 @@
-## Playable walker for Pycon2019
+## ML2 Gym
+Custom made, modified ewnvironments used by ML2 for reinforcement learning
 
-This is a modified version of BiipedalWalker from OpenAI gym env.
+### PyCon Walker
+Modified version of bipedal walker from OpenAI gym. 
 
-### Install
+Two player playable. 
+For more information, refer to the `README.md` in pycon_walker directory.
 
-To install, run
-``` pip install -e . ```
-on thiss directory
+### Snake
+(To be added)
+Custom made environment for the classic snake apple game. 
+Modified for four player.
 
-For sample code, refer to `test_env.py` for importing and usage.
+### Pikachu Volleyball
+(To be added)
+Pikachu volleyball environment. 
 
-To play, hold down `a` and use `d` and `f` for left leg, `j` and `k` for right
-leg. 
+Inception-like, with .exe in ubuntu in mac. 
