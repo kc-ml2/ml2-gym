@@ -2,9 +2,8 @@
 import random
 import itertools
 import numpy as np
-
-from ml2_python.common import Point, Cell, Direction
-from ml2_python.python import Python
+from snaketh.common import Point, Cell, Direction
+from snaketh.snake import Snake
 
 
 class Field:
@@ -12,10 +11,10 @@ class Field:
         self.create_cells(init_map)
         # Default layout of 4 players
         self.players = [
-            Python(Point(3, 3), Direction.EAST, init_length),
-            Python(Point(self.size[1] - 3, 3), Direction.SOUTH, init_length),
-            Python(Point(self.size[1] - 3, self.size[0] - 3), Direction.WEST, init_length),
-            Python(Point(3, self.size[0] - 3), Direction.NORTH, init_length)
+            Snake(Point(3, 3), Direction.EAST, init_length),
+            Snake(Point(self.size[1] - 3, 3), Direction.SOUTH, init_length),
+            Snake(Point(self.size[1] - 3, self.size[0] - 3), Direction.WEST, init_length),
+            Snake(Point(3, self.size[0] - 3), Direction.NORTH, init_length)
         ]
         _ = self.update_cells()
 
@@ -64,37 +63,37 @@ class Field:
 
     def update_cells(self):
         conflicts = []
-        for idx, python in enumerate(self.players):
-            if not python.alive:
+        for idx, snake in enumerate(self.players):
+            if not snake.alive:
                 continue
 
             # Headbutting wall
-            if self[python.head] == Cell.WALL:
+            if self[snake.head] == Cell.WALL:
                 conflicts.append((idx,))
 
             # Headbutting each other
-            elif self[python.head] in Cell.HEAD:
-                other = Cell.HEAD.index(self[python.head])
+            elif self[snake.head] in Cell.HEAD:
+                other = Cell.HEAD.index(self[snake.head])
                 conflicts.append((idx, other))
 
             # Headbutting body
-            elif self[python.head] in Cell.BODY:
-                other = Cell.BODY.index(self[python.head])
+            elif self[snake.head] in Cell.BODY:
+                other = Cell.BODY.index(self[snake.head])
                 conflicts.append((idx, other))
 
             # At peace
             else:
-                self[python.head] = Cell.HEAD[idx]
+                self[snake.head] = Cell.HEAD[idx]
 
-            for body_cell in itertools.islice(python.body, 1, len(python.body)):
+            for body_cell in itertools.islice(snake.body, 1, len(snake.body)):
                 self[body_cell] = Cell.BODY[idx]
 
         return conflicts
 
     def clear(self):
-        for python in self.players:
-            if not python.alive:
-                if self[python.head] in Cell.HEAD:
-                    self[python.head] = Cell.EMPTY
-                for body_cell in itertools.islice(python.body, 1, len(python.body)):
+        for snake in self.players:
+            if not snake.alive:
+                if self[snake.head] in Cell.HEAD:
+                    self[snake.head] = Cell.EMPTY
+                for body_cell in itertools.islice(snake.body, 1, len(snake.body)):
                     self[body_cell] = Cell.EMPTY

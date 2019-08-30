@@ -1,10 +1,9 @@
 """modified from YuriyGuts/snake-ai-reinforcement"""
 from collections import deque
+from snaketh.common import Direction
 
-from ml2_python.common import Direction
 
-
-class Python:
+class Snake:
     def __init__(self, position, direction, length=3):
         self.direction = direction
         self.directions = [
@@ -40,7 +39,7 @@ class Python:
 
     def turn_right(self):
         idx = self.directions.index(self.direction)
-        self.direction = self.directions[(idx + 1)%len(self.directions)]
+        self.direction = self.directions[(idx + 1) % len(self.directions)]
 
     def grow(self):
         self.body.appendleft(self.next)

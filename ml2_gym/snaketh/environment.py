@@ -1,8 +1,8 @@
 import numpy as np
 import gym
 from gym.spaces import Discrete, Box
-from ml2_python.common import Cell
-from ml2_python.field import Field
+from snaketh.common import Cell
+from snaketh.field import Field
 
 
 class Action:
@@ -21,7 +21,7 @@ class Reward:
     beta = 0.05
 
 
-class ML2Python(gym.Env):
+class Snaketh(gym.Env):
     def __init__(self, init_map, init_length=3, fruit_interval=10):
         self.init_map = init_map
         self.init_length = init_length
@@ -54,31 +54,31 @@ class ML2Python(gym.Env):
         assert len(actions) == self.num_players
         rewards = np.zeros(self.num_players)
         for idx, action in enumerate(actions):
-            python = self.field.players[idx]
-            if not python.alive:
+            snake = self.field.players[idx]
+            if not snake.alive:
                 continue
 
             # Choose action
             if action == Action.TURN_LEFT:
-                python.turn_left()
+                snake.turn_left()
             elif action == Action.TURN_RIGHT:
-                python.turn_right()
+                snake.turn_right()
 
             # Eat fruit
-            if self.field[python.next] == Cell.FRUIT:
-                python.grow()
+            if self.field[snake.next] == Cell.FRUIT:
+                snake.grow()
                 rewards[idx] += Reward.FRUIT
                 self.epinfos['fruits'][idx] += 1
 
             # Or just starve
             else:
-                self.field[python.tail] = Cell.EMPTY
-                python.move()
+                self.field[snake.tail] = Cell.EMPTY
+                snake.move()
 
-            self.field.players[idx] = python
+            self.field.players[idx] = snake
 
             # Add count-based bonus
-            cell = int(python.head.x + python.head.y*self.field.size[0])
+            cell = int(snake.head.x + snake.head.y*self.field.size[0])
             self.visits[idx][cell] += 1
             rewards[idx] += Reward.beta*(self.visits[idx][cell] + Reward.alpha)**(-0.5)
 
@@ -86,8 +86,8 @@ class ML2Python(gym.Env):
         conflicts = self.field.update_cells()
         for conflict in conflicts:
             idx = conflict[0]
-            python = self.field.players[idx]
-            python.alive = False
+            snake = self.field.players[idx]
+            snake.alive = False
             self.dones[idx] = True
             rewards[idx] += Reward.LOSE
 
@@ -97,7 +97,7 @@ class ML2Python(gym.Env):
                 if idx != conflict[0]:
                     other = self.field.players[idx]
                     # Head to head
-                    if self.field[python.head] in Cell.HEAD:
+                    if self.field[snake.head] in Cell.HEAD:
                         other.alive = False
                         self.dones[idx] = True
                         rewards[idx] += Reward.LOSE

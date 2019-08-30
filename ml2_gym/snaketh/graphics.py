@@ -2,8 +2,10 @@
 import numpy as np
 import torch
 import pygame
-from ml2_python.common import Cell
-from ml2_python.environment import Action
+from snaketh.common import Cell
+from snaketh.environment import Action
+
+# FIXME: need to unify shape of observation
 from runner import reshape_s
 
 
@@ -96,6 +98,7 @@ class ML2PythonGUI:
                 actions = []
                 for idx in range(self.env.num_players):
                     if not (idx == 0 and self.human):
+                        # FIXME: need to unify shape of observation
                         state = reshape_s(obs, idx, n=self.env.num_players)
                         state = torch.tensor(state).to(self.device)
                         q = policy(state.unsqueeze(0).float())
