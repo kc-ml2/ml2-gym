@@ -4,7 +4,7 @@ import torch.optim as optim
 import numpy as np
 
 
-class Kyhoon:
+class DQN:
     def __init__(self, net, target_net, runner, s_shape,
                  device='cpu', optimizer='RMSprop', lr=1e-3, double=True,
                  target_update_step=10, per=True, decimal=False):
@@ -18,7 +18,6 @@ class Kyhoon:
 
         self.tau = 0.01
 
-        #s_shape = (60, 80, 4)
         if self.per:
             self.rb = PER(s_shape, max_size=int(1e6), alpha=0.4, beta=0.6,
                           decimal=decimal)
@@ -28,8 +27,6 @@ class Kyhoon:
 
         optim_class = getattr(optim, optimizer)
         self.optimizer = optim_class(self.net.parameters(), lr=lr)
-
-        # self.state = self.env.reset()
 
         self.update_target()
 
@@ -44,7 +41,6 @@ class Kyhoon:
         return q.detach().numpy()
 
     def update_target(self):
-        #self.target_net.load_state_dict(self.net.state_dict())
         for target_param, param in zip(self.target_net.parameters(),
                                        self.net.parameters()):
             target_param.data.copy_(self.tau*param.data +
@@ -54,20 +50,6 @@ class Kyhoon:
     def learn(self, num_steps=128, epoch=10, mb_size=128, gamma=0.99, eps=0.3):
         self.target_counter += 1
         b_s, b_a, b_r, b_s_, b_d = self.runner.run(num_steps, eps=eps)
-        #b_s, b_a, b_r, b_s_, b_d = [], [], [], [], []
-        #for _ in range(num_steps):
-        #    s_t = torch.tensor(self.state).unsqueeze(0).to(self.device)
-        #    a = self.net(s_t).numpy()
-        #    s_, r, d, _ = self.env.step(a[0])
-
-        #    b_s.append(self.state)
-        #    b_a.append(a)
-        #    b_r.append([r])
-        #    b_s_.append(s_)
-        #    b_d.append([d])
-
-        #    self.state = s_
-
         buffer_size = self.rb.insert(b_s, b_a, b_r, b_s_, b_d)
 
         loss_avg = 0
@@ -185,7 +167,6 @@ class PER:
         return self.curr_idx
 
     def sample(self, num):
-        #sample_idx = np.random.randint(self.curr_idx, size=num)
         probs = self.p[:self.curr_idx]**self.alpha
         probs = probs / probs.sum()
         sample = np.random.multinomial(1, probs, size=num)

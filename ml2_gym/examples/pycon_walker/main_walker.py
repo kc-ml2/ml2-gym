@@ -20,8 +20,7 @@ def train(args):
     import gym
     import ml2_gym.pycon_walker
 
-    logger = Logger('wt', args=args)
-    logger.log("I Won(Tae)-Chu!")
+    logger = Logger('pycon_walker', args=args)
 
     # testing policy
     env = gym.make('pycon-v0')
@@ -32,11 +31,11 @@ def train(args):
     enc = policy.MLP(n_obs, hidden, n_ac, device=args.device)
     target = policy.MLP(n_obs, hidden, n_ac, device=args.device)
     runner = runner.Runner(enc, env, device=args.device, decimal=decimal)
-    agent = agent.Kyhoon(enc, target, runner, (n_obs,),
-                         device=args.device, double=True,
-                         optimizer=args.optimizer, lr=args.lr,
-                         target_update_step=10,
-                         decimal=decimal, per=False)
+    agent = agent.DQN(enc, target, runner, (n_obs,),
+                      device=args.device, double=True,
+                      optimizer=args.optimizer, lr=args.lr,
+                      target_update_step=10,
+                      decimal=decimal, per=False)
 
     save_dir = os.path.join('saved_models', args.tag)
     os.makedirs(save_dir, exist_ok=True)
@@ -72,11 +71,8 @@ def test(args):
     n_obs = len(env.observation_space.high)
     n_ac = 9
     hidden = [256, 512, 256]
-    enc = policy.MLP(n_obs, hidden, n_ac, device=args.device)
-    enc.load_state_dict(torch.load('saved_models/enc.pth'))
+    enc = load_model('saved_models/enc.pth')
     runner = runner.Runner(enc, env, device=args.device, decimal=True)
-    #target = policy.MLP(n_obs, hidden, n_ac, device=args.device)
-    #target.load_state_dict(torch.load('saved_models/target.pth'))
     s = env.reset()
 
     score = 0
@@ -152,13 +148,6 @@ def double(args):
         score += r
         env.render()
 
-        #if d:
-        #    print(score)
-        #    s = env.reset(human=True)
-        #    score = 0
-        #    env.render()
-        #    start_flag = True
-
 
 def single(args):
     import numpy as np
@@ -231,11 +220,9 @@ if __name__ == "__main__":
 
 
     parser.add_argument_group("dataloader options")
-    # TODO: add options
     parser.add_argument("--video", action='store_true')
 
     parser.add_argument_group("optimizer options")
-    # TODO: add options
     parser.add_argument("--n_update", type=int, default=10000)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--optimizer", type=str, default='RMSprop')
