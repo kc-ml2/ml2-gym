@@ -3,6 +3,8 @@ Custom made and modified environments used by ML2 for reinforcement learning.
 
 Refer to [examples](ml2_gym/examples) folder for demo programs and example codes. 
 
+For installation of all envs, run `pip install -e .`
+
 ### PyCon Walker
 Modified version of bipedal walker from OpenAI gym. 
 
